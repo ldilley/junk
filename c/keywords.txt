@@ -1,0 +1,44 @@
+auto     - implicit modifier for variables with local scope
+break    - breaks out of a loop early
+case     - similar to if comparison
+char     - character data type
+const    - constant modifier
+continue - continue back at start of loop
+default  - default condition if nothing else is matched within a switch
+do       - do at least once in a do/while loop
+double   - double-precision floating point data type (decimal)
+else     - similar to default if no previous conditions match
+enum     - enumeration { Sunday, Monday, Tuesday, ... }
+extern   - external scope modifier
+float    - single-precision floating point data type (decimal)
+for      - for loop (initialize; condition; increment)
+goto     - unconditional jump to label
+if       - if condition yields (true or false)
+int      - integer data type
+long     - big integer data type
+register - suggest storing this data within a CPU register (compiler can ignore)
+return   - return to calling function with optional value
+short    - small integer data type
+signed   - signed modifier (negative value support)
+sizeof   - calculates size of data/type
+static   - static modifier (data persists after function returns for life of program)
+struct   - data structure for custom types
+switch   - switch statement containing cases (similar to if/else)
+typedef  - creates aliases (typedef unsigned short int usint;)
+union    - struct-like data structure whose size is that of its largest member (not cumulative like a struct)
+unsigned - unsigned modifier (positive values only)
+void     - denotes nothing is returned by function or is used to represent an ambiguous date type
+volatile - modifier that instructs compiler not to optimize this variable as it can be modified externally
+while    - loop until condition is met (while(true))
+
+Tips:
+1) Global variables are initialized to zero (0).
+2) Variables with local scope are NOT initialized by the compiler.
+3) Avoid goto as it can cause "spaghetti code".
+4) Character arrays vs. strings: strings are null terminated ('\0') char arrays.
+5) Unlike in C++, it is not standard to declare a counter variable within a for loop in C.
+6) Always declare your variables at the start of the function.
+7) Always have a corresponding free() for each malloc() to avoid potential memory leaks.
+8) Remember to avoid "wrap around" with integers. Use the proper data type/size to help avoid this.
+9) Always initialize variables including pointers (NULL) so they do not point to garbage values.
+10) Remember that arrays start with a zero (0) index in C like in C++ and Java.
