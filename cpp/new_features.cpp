@@ -5,6 +5,7 @@
 #include <iostream>
 #include <locale>
 #include <memory>   // std::shared_ptr, std::unique_ptr, std::weak_ptr
+#include <regex>
 #include <string>
 #include <tuple>
 #include <unordered_map>
@@ -118,7 +119,18 @@ void nullptr_func()
 // Regex (C++11)
 void regex_func()
 {
-  //
+  string example = "This is some text.";
+  string pattern = "(^This)(.*)$";
+  regex rx(pattern);
+  cout << "Regex" << endl;
+  cout << "-----" << endl;
+  cout << "Example text: " << example << endl;
+  cout << "Pattern: " << pattern << endl;
+  if(regex_match(example, rx))
+    cout << "Match found!" << endl;
+  else
+    cout << "No match found!" << endl;
+  cout << endl;
   return;
 }
 
@@ -258,6 +270,7 @@ int main()
   decltype_func();
   glamb_func();
   nullptr_func();
+  regex_func();
   smartptr_func();
   tuple_func();
   umap_func();
