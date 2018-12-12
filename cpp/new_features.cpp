@@ -1,8 +1,10 @@
 // Demonstrate some features of new C++ standards (>=C++11)
 
-#include <cstddef>  // byte
+#include <codecvt>
+#include <cstddef>  // std::byte
 #include <iostream>
-#include <memory>   // shared_ptr, unique_ptr, weak_ptr
+#include <locale>
+#include <memory>   // std::shared_ptr, std::unique_ptr, std::weak_ptr
 #include <string>
 #include <tuple>
 #include <unordered_map>
@@ -195,7 +197,22 @@ void tuple_func()
 // Unicode Literals (C++11)
 void unicode_func()
 {
-  //
+  const char a = '\x7e';             // tilde (ASCII)
+  const char *b = u8"\u03A9";        // omega (UTF-8)
+  const wchar_t *c = L"\x03A9";      // omega (wide character)
+  const char16_t *d = u"\u03A9";     // omega (UTF-16)
+  const char32_t *e = U"\U000003A9"; // omega (UTF-32)
+  cout << "Unicode" << endl;
+  cout << "-------" << endl;
+  cout << "char: " << a << endl;
+  cout << "u8: " << b << endl;
+  wstring_convert<codecvt_utf8<wchar_t>> wide_to_u8_conv;
+  cout << "wchar_t: " << wide_to_u8_conv.to_bytes(c) << endl;
+  wstring_convert<codecvt_utf8_utf16<char16_t>, char16_t> u16_to_u8_conv;
+  cout << "char16_t: " << u16_to_u8_conv.to_bytes(d) << endl;
+  //wstring_convert<codecvt<char32_t, char, mbstate_t>> u32_to_u8_conv;
+  //cout << u32_to_u8_conv.to_bytes(e) << endl;
+  cout << endl;
   return;
 }
 
@@ -221,6 +238,7 @@ void umap_func()
     cout << "Found! Key: [" << search->first << "] Value: [" << search->second << "]\n";
   else
     cout << "Not found!\n";
+  cout << endl;
   return;
 }
 
@@ -243,6 +261,7 @@ int main()
   smartptr_func();
   tuple_func();
   umap_func();
+  unicode_func();
 
   return 0;
 }
