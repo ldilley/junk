@@ -169,9 +169,26 @@ void thread_func()
 }
 
 // tuple (C++11)
+/*
+ * Allows mixing of types. Can be used with std::tie (C++11) to return multiple values and
+ * std::ignore (C++11) to omit a positional value. Use std::get (C++11) to access values.
+ * Tuples start at index zero (of course!)
+ */
 void tuple_func()
 {
-  //
+  string fruit = "";
+  int rda = 0;
+  // Vitamin C content (fruit, % RDA, mg)
+  tuple <string, int, float> tup;
+  tup = make_tuple("apple", 14, 8.4);
+  // Populate values and ignore mg
+  tie(fruit, rda, ignore) = tup;
+  cout << "Tuple" << endl;
+  cout << "-----" << endl;
+  cout << "Tuple contains: " << fruit << " with " << rda << "% RDA of vitamin C." << endl;
+  get<0>(tup) = "brick";
+  get<1>(tup) = 0;
+  cout << "Tuple now contains: " << get<0>(tup) << " with " << get<1>(tup) << "% RDA of vitamin C.\n" << endl;
   return;
 }
 
