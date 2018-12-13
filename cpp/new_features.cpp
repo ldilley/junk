@@ -165,13 +165,6 @@ void smartptr_func()
   return;
 }
 
-// Static Assertion (C++11)
-void statassert_func()
-{
-  //
-  return;
-}
-
 // Threading (C++11)
 /*
  * Based off pthreads, new atomic types
@@ -272,7 +265,8 @@ T sum(T arg1, Args... args) {
 //  std::cout << __PRETTY_FUNCTION__ << endl; // show the args
 //#endif
   //const int size = sizeof...(Args);
-  //constexpr auto size = (sizeof(Args) + ...); // C++17
+  constexpr auto size = (sizeof(Args) + ...);     // C++17
+  static_assert(size <= 0, "There are no args!"); // C++11
   //for(auto value : {args...})
   //{
   //  sum += value;
