@@ -255,10 +255,37 @@ void umap_func()
 }
 
 // Variadic Templates (C++11)
-// <T>
+/*
+ * Accepts a variable number of args.
+ */
+template<typename T>
+T sum(T v)
+{
+//#if defined(__GNUC__) || defined(__GNUG__)
+//  std::cout << __PRETTY_FUNCTION__ << endl; // show the args
+//#endif
+  return v;
+}
+template<typename T, typename... Args>
+T sum(T arg1, Args... args) {
+//#if defined(__GNUC__) || defined(__GNUG__)
+//  std::cout << __PRETTY_FUNCTION__ << endl; // show the args
+//#endif
+  //const int size = sizeof...(Args);
+  //constexpr auto size = (sizeof(Args) + ...); // C++17
+  //for(auto value : {args...})
+  //{
+  //  sum += value;
+  //}
+  return arg1 + sum(args...);
+}
+
 void variadic_func()
 {
-  //
+  cout << "Variadic Template" << endl;
+  cout << "-----------------" << endl;
+  cout << "Sum of 1 + 3 + 5 = " << sum(1, 3, 5) << endl;
+  cout << "Sum of 10 + 20 + 30 + 40 + 50 = " << sum(10, 20, 30, 40, 50) << '\n' << endl;
   return;
 }
 
@@ -275,6 +302,7 @@ int main()
   tuple_func();
   umap_func();
   unicode_func();
+  variadic_func();
 
   return 0;
 }
