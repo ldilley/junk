@@ -5,6 +5,7 @@
 #include <iostream>
 #include <locale>
 #include <memory>   // std::shared_ptr, std::unique_ptr, std::weak_ptr
+#include <mutex>
 #include <regex>
 #include <string>
 #include <thread>
@@ -170,9 +171,22 @@ void smartptr_func()
  * Based off pthreads, new atomic types
  */
 // thread_print() allows for race conditions
-void thread_print(int x, int y)
+void thread_print()
 {
-  cout << x + y << endl;
+  for(int i = 0; i < 100; i++)
+    cout << i << " ";
+  cout << '\n' << endl;
+  return;
+}
+
+// thread_print_safe() is thread safe due to mutex
+void thread_print_safe(mutex &mtx)
+{
+  mtx.lock();
+  for(int i = 0; i < 100; i++)
+    cout << i << " ";
+  cout << endl;
+  mtx.unlock();
   return;
 }
 
@@ -180,12 +194,24 @@ void thread_func()
 {
   const int thread_count = 10;
   thread threads[thread_count];
+  mutex mtx;
   cout << "Threads" << endl;
   cout << "-------" << endl;
+
+  // Allows for race conditions
+  cout << "Thread unsafe loop counter: " << endl;
   for(int i = 0; i < thread_count; i++)
-    threads[i] = thread(thread_print, i, i + 5);
+    threads[i] = thread(thread_print);
   for(int i = 0; i < thread_count; i++)
     threads[i].join();
+
+  // Thread safe due to mutex
+  cout << "Thread safe (mutex) loop counter: " << endl;
+  for(int i = 0; i < thread_count; i++)
+    threads[i] = thread(thread_print_safe, ref(mtx));
+  for(int i = 0; i < thread_count; i++)
+    threads[i].join();
+
   cout << endl;
   return;
 }
