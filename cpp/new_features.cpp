@@ -7,6 +7,7 @@
 #include <memory>   // std::shared_ptr, std::unique_ptr, std::weak_ptr
 #include <regex>
 #include <string>
+#include <thread>
 #include <tuple>
 #include <unordered_map>
 
@@ -26,8 +27,7 @@ void auto_func()
 
 // std::byte (C++17)
 /*
- * Unlike uint8_t, does not allow arithmetic operations performed on it. The data should
- * simply be treated as bits.
+ * Unlike uint8_t, does not allow arithmetic operations performed on it.
  */
 void byte_func()
 {
@@ -169,9 +169,24 @@ void smartptr_func()
 /*
  * Based off pthreads, new atomic types
  */
+// thread_print() allows for race conditions
+void thread_print(int x, int y)
+{
+  cout << x + y << endl;
+  return;
+}
+
 void thread_func()
 {
-  //
+  const int thread_count = 10;
+  thread threads[thread_count];
+  cout << "Threads" << endl;
+  cout << "-------" << endl;
+  for(int i = 0; i < thread_count; i++)
+    threads[i] = thread(thread_print, i, i + 5);
+  for(int i = 0; i < thread_count; i++)
+    threads[i].join();
+  cout << endl;
   return;
 }
 
@@ -293,6 +308,7 @@ int main()
   nullptr_func();
   regex_func();
   smartptr_func();
+  thread_func();
   tuple_func();
   umap_func();
   unicode_func();
