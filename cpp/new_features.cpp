@@ -1,5 +1,6 @@
 // Demonstrate some features of new C++ standards (>=C++11)
 
+#include <atomic>   // std::atomic_int
 #include <codecvt>
 #include <cstddef>  // std::byte
 #include <iostream>
@@ -182,11 +183,22 @@ void thread_print()
 // thread_print_safe() is thread safe due to mutex
 void thread_print_safe(mutex &mtx)
 {
+  /*
+   * std::scoped_lock lock(mtx); is recommended in C++17 or std::lock_guard lock(mtx);
+   * in C++11.
+   */
   mtx.lock();
   for(int i = 0; i < 100; i++)
     cout << i << " ";
-  cout << endl;
+  cout << '\n' << endl;
   mtx.unlock();
+  return;
+}
+
+// atomic_increment() is thread safe due to atomic variable
+void atomic_increment(atomic_int &ai)
+{
+  ai++;   // this increment occurs atomically (++ operator is overloaded for atomic type)
   return;
 }
 
@@ -195,6 +207,7 @@ void thread_func()
   const int thread_count = 10;
   thread threads[thread_count];
   mutex mtx;
+  atomic_int ai = 0;
   cout << "Threads" << endl;
   cout << "-------" << endl;
 
@@ -211,6 +224,14 @@ void thread_func()
     threads[i] = thread(thread_print_safe, ref(mtx));
   for(int i = 0; i < thread_count; i++)
     threads[i].join();
+
+  // Thread safe due to atomic variable
+  cout << "Thread safe (atomic) loop counter: " << endl;
+  for(int i = 0; i < thread_count; i++)
+    threads[i] = thread(atomic_increment, ref(ai));
+  for(int i = 0; i < thread_count; i++)
+    threads[i].join();
+  cout << "Atomic int value after " << thread_count << " iterations: " << ai << endl;
 
   cout << endl;
   return;
@@ -306,8 +327,8 @@ T sum(T arg1, Args... args) {
 //  std::cout << __PRETTY_FUNCTION__ << endl; // show the args
 //#endif
   //const int size = sizeof...(Args);
-  constexpr auto size = (sizeof(Args) + ...);    // C++17
-  static_assert(size > 0, "There are no args!"); // C++11
+  constexpr auto size = (sizeof(Args) + ...); // C++17
+  static_assert(size > 0, "There are no args!");
   //for(auto value : {args...})
   //{
   //  sum += value;
