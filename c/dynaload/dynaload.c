@@ -1,8 +1,8 @@
-/* Demonstrates the loading of dynamic modules */
+/* Demonstrates the loading and reloading of dynamic modules */
 
 #include <dlfcn.h>  /* dlopen(), dlerror(), dlclose() */
-#include <stdio.h>  /* fprintf(), printf() */
-#include <stdlib.h> /* exit() */
+#include <stdio.h>  /* fprintf(), printf(), fgets(), puts() */
+#include <stdlib.h> /* atoi(), exit() */
 
 /* Data types to determine function in assign_func() */
 enum data_type{INT, FLOAT, VOID};
@@ -71,9 +71,47 @@ void assign_func(lib_funcs *lf, void *lib_handle, enum data_type dt, const char 
 /* Test the library functions */
 void test_lib(lib_funcs *lf)
 {
-  printf("sum: %d\n", lf->sum(5, 7));
-  printf("half: %.2f\n", lf->half(360));
+  printf("sum(5, 7) = %d\n", lf->sum(5, 7));
+  printf("half(360) = %.2f\n", lf->half(360));
+  printf("print_message(\"Hi!\") = ");
   lf->print_message("Hi!");
+}
+
+void menu(lib_funcs *lf, void **lib_handle, const char *lib_name)
+{
+  char input[64];
+  int c = 0;
+
+  while(atoi(input) != 3)
+  {
+    puts("\nDynaLoad Control Center");
+    puts("-----------------------\n");
+    printf("1. Reload %s\n", lib_name);
+    printf("2. Test %s functions\n", lib_name);
+    puts("3. Quit\n");
+    printf("> ");
+    fgets(input, sizeof(input) / sizeof(char), stdin);
+    switch(atoi(input))
+    {
+      case 1:
+        dlclose(&lib_handle);
+        load_lib(lf, lib_handle, lib_name);
+        break;
+      case 2:
+        puts("");
+        test_lib(lf);
+        break;
+      case 3:
+        dlclose(&lib_handle);
+        puts("\nGoodbye!\n");
+        exit(0);
+        break;
+      default:
+        puts("\nPlease enter a valid number!");
+        break;
+    }
+  }
+  return;
 }
 
 int main()
@@ -84,8 +122,9 @@ int main()
   lib_funcs *lfp = &lf;
 
   load_lib(lfp, lib_handle, lib_name);
-  test_lib(lfp);
-  dlclose(&lib_handle);
+  //test_lib(lfp);
+  menu(lfp, lib_handle, lib_name);
+  //dlclose(&lib_handle);
 
   return 0;
 }
