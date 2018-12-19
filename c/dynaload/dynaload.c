@@ -3,6 +3,7 @@
 #include <dlfcn.h>  /* dlopen(), dlerror(), dlsym(), dlclose() */
 #include <stdio.h>  /* fprintf(), printf(), fgets(), puts() */
 #include <stdlib.h> /* atoi(), exit() */
+#include <string.h> /* strcspn() */
 
 /* Data types to determine function in assign_func() */
 enum data_type{INT, FLOAT, VOID};
@@ -79,8 +80,8 @@ void assign_func(lib_funcs *lf, void *lib_handle, enum data_type dt, const char 
   return;
 }
 
-/* Test the library functions */
-void test_lib(lib_funcs *lf)
+/* Automatically test the library functions */
+void auto_test_lib(lib_funcs *lf)
 {
   if(lf->sum)
   {
@@ -94,21 +95,58 @@ void test_lib(lib_funcs *lf)
   return;
 }
 
+/* Manually test the library functions */
+void man_test_lib(lib_funcs *lf)
+{
+  char input[65];
+  int x = 0, y = 0;
+
+  if(lf->sum)
+  {
+    puts("Notice: Invalid input will be considered zero.");
+
+    printf("Enter a number (x) to sum: ");
+    fgets(input, sizeof(input) / sizeof(char), stdin);
+    x = atoi(input);
+    printf("Enter another number (y) to sum: ");
+    fgets(input, sizeof(input) / sizeof(char), stdin);
+    y = atoi(input);
+    printf("sum(%d, %d) = %d\n\n", x, y, lf->sum(x, y));
+
+    printf("Enter a number to half: ");
+    fgets(input, sizeof(input) / sizeof(char), stdin);
+    x = atoi(input);
+    printf("half(%d) = %.2f\n\n", lf->half(x));
+
+    printf("Enter a string to print (%d characters max): ", (sizeof(input) / sizeof(char)) - 1);
+    fgets(input, sizeof(input) / sizeof(char), stdin);
+    input[strcspn(input, "\n")] = 0; /* remove trailing newline */
+    printf("print_message(\"%s\") = ", input);
+    lf->print_message(input);
+  }
+  else
+    puts("Library not loaded!");
+  return;
+}
+
 void menu(lib_funcs *lf, void **lib_handle, const char *lib_name)
 {
   char input[64];
   int c = 0;
 
-  while(atoi(input) != 4)
+  while(atoi(input) != 5)
   {
     puts("\nDynaLoad Control Center");
     puts("-----------------------\n");
     printf("1. Unload %s\n", lib_name);
-    printf("2. (Re)load %s\n", lib_name);
-    printf("3. Test %s functions\n", lib_name);
-    puts("4. Quit\n");
+    printf("2. Load %s\n", lib_name);
+    printf("3. Automatically test %s functions\n", lib_name);
+    printf("4. Manually test %s functions\n", lib_name);
+    puts("5. Quit\n");
     printf("> ");
     fgets(input, sizeof(input) / sizeof(char), stdin);
+    input[2] = '\0';
+    input[1] = '\n';
     switch(atoi(input))
     {
       case 1:
@@ -121,9 +159,13 @@ void menu(lib_funcs *lf, void **lib_handle, const char *lib_name)
         break;
       case 3:
         puts("");
-        test_lib(lf);
+        auto_test_lib(lf);
         break;
       case 4:
+        puts("");
+        man_test_lib(lf);
+        break;
+      case 5:
         dlclose(&lib_handle);
         puts("\nGoodbye!\n");
         exit(0);
