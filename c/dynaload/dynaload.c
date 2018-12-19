@@ -119,6 +119,7 @@ void man_test_lib(lib_funcs *lf)
     printf("half(%d) = %.2f\n\n", lf->half(x));
 
     printf("Enter a string to print (%d characters max): ", (sizeof(input) / sizeof(char)) - 1);
+    /* ToDo: Protect against going over input size */
     fgets(input, sizeof(input) / sizeof(char), stdin);
     input[strcspn(input, "\n")] = 0; /* remove trailing newline */
     printf("print_message(\"%s\") = ", input);
@@ -144,6 +145,7 @@ void menu(lib_funcs *lf, void **lib_handle, const char *lib_name)
     printf("4. Manually test %s functions\n", lib_name);
     puts("5. Quit\n");
     printf("> ");
+    /* ToDo: Protect against going over input size */
     fgets(input, sizeof(input) / sizeof(char), stdin);
     input[2] = '\0';
     input[1] = '\n';
