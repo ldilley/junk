@@ -1,11 +1,15 @@
 /* Demonstrates the loading and reloading of dynamic modules */
 
-#include <dlfcn.h>   /* dlopen(), dlerror(), dlsym(), dlclose() */
 #include <stdbool.h>
 #include <stdint.h>  /* SIZE_MAX */
 #include <stdio.h>   /* fprintf(), printf(), fgets(), puts() */
 #include <stdlib.h>  /* atoi(), exit() */
 #include <string.h>  /* strcspn(), strcpy(), strlen() */
+#if _WIN32
+#include <windows.h> /* LoadLibrary(), FreeLibrary(), GetLastError(), GetProcAddress() */
+#else
+#include <dlfcn.h>   /* dlopen(), dlerror(), dlsym(), dlclose() */
+#endif /* _WIN32 */
 
 /* Data types to determine function in assign_func() */
 enum data_type{INT, FLOAT, VOID};
@@ -28,14 +32,26 @@ void load_lib(lib_funcs *lf, void **lib_handle, const char *lib_name)
     return;
   }
 
-  lib_handle = dlopen(lib_name, RTLD_NOW); /* attempt to open library */
+/* Attempt to open library */
+#ifdef _WIN32
+  lib_handle = LoadLibrary(lib_name);
+#else
+  lib_handle = dlopen(lib_name, RTLD_NOW);
+#endif /* _WIN32 */
+
   if(!lib_handle)
   {
+#ifdef _WIN32
+    fprintf(stderr, "LoadLibrary(): %s\n", GetLastError());
+#else
     fprintf(stderr, "dlopen(): %s\n", dlerror());
+#endif /* _WIN32 */
     exit(EXIT_FAILURE);
   }
 
+#ifndef _WIN32
   dlerror(); /* resets error string */
+#endif
 
   /* Associate functions with library symbols */
   assign_func(lf, lib_handle, INT, "sum");
@@ -56,7 +72,13 @@ void unload_lib(lib_funcs *lf, void **lib_handle, const char *lib_name)
   }
 
   if(lib_handle)
+  {
+#ifdef _WIN32
+    FreeLibrary((HMODULE)&lib_handle);
+#else
     dlclose(&lib_handle);
+#endif /* _WIN32 */
+  }
   lib_handle = NULL;
   lf->sum = NULL;
   lf->half = NULL;
@@ -65,12 +87,28 @@ void unload_lib(lib_funcs *lf, void **lib_handle, const char *lib_name)
   return;
 }
 
-/* Uses dlsym() to tie function pointer to symbol address */
+/* Ties function pointer to symbol address */
 void assign_func(lib_funcs *lf, void *lib_handle, enum data_type dt, const char *func_name)
 {
   const char *error_message = NULL;
+
   switch(dt)
   {
+#ifdef _WIN32
+    case 0:
+      lf->sum = (int (*)(int x, int y))GetProcAddress((HMODULE)lib_handle, func_name);
+      break;
+    case 1:
+      lf->half = (float (*)(int num))GetProcAddress((HMODULE)lib_handle, func_name);
+      break;
+    case 2:
+      lf->print_message = (void (*)(const char *message))GetProcAddress((HMODULE)lib_handle, func_name);
+      break;
+    default:
+      fprintf(stderr, "Corresponding function not found in assign_func()!");
+      exit(EXIT_FAILURE);
+      break;
+#else
     case 0:
       lf->sum = (int (*)(int x, int y))dlsym(lib_handle, func_name);
       break;
@@ -84,8 +122,18 @@ void assign_func(lib_funcs *lf, void *lib_handle, enum data_type dt, const char 
       fprintf(stderr, "Corresponding function not found in assign_func()!");
       exit(EXIT_FAILURE);
       break;
+#endif /* _WIN32 */
   }
 
+#ifdef _WIN32
+  error_message = GetLastError();
+  if(error_message)
+  {
+    fprintf(stderr, "GetProcAddress(): %s\n", error_message);
+    FreeLibrary((HMODULE)&lib_handle);
+    exit(EXIT_FAILURE);
+  }
+#else
   error_message = dlerror();
   if(error_message)
   {
@@ -93,6 +141,7 @@ void assign_func(lib_funcs *lf, void *lib_handle, enum data_type dt, const char 
     dlclose(lib_handle);
     exit(EXIT_FAILURE);
   }
+#endif /* _WIN32 */
 
   return;
 }
@@ -243,8 +292,6 @@ void menu(lib_funcs *lf, void **lib_handle, const char *lib_name)
         unload_lib(lf, lib_handle, lib_name);
         break;
       case 2:
-        if(lib_handle)
-          dlclose(&lib_handle);
         load_lib(lf, lib_handle, lib_name);
         break;
       case 3:
@@ -256,7 +303,7 @@ void menu(lib_funcs *lf, void **lib_handle, const char *lib_name)
         man_test_lib(lf);
         break;
       case 5:
-        dlclose(&lib_handle);
+        unload_lib(lf, lib_handle, lib_name);
         free(input);
         puts("\nGoodbye!\n");
         exit(0);
@@ -272,7 +319,11 @@ void menu(lib_funcs *lf, void **lib_handle, const char *lib_name)
 
 int main()
 {
+#ifdef _WIN32
+  const char *lib_name = "libexample.dll";
+#else
   const char *lib_name = "libexample.so";
+#endif /* _WIN32 */
   void **lib_handle = NULL;
   lib_funcs lf; /* struct containing function pointers */
   lib_funcs *lfp = &lf;
