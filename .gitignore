@@ -4,6 +4,7 @@
 #*.core
 !.gitignore
 !*.asm
+!*.bat
 !*.c
 !*.cpp
 !*.cs
