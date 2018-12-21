@@ -97,6 +97,26 @@ void assign_func(lib_funcs *lf, void *lib_handle, enum data_type dt, const char 
   return;
 }
 
+/* Removes leading and trailing whitespace */
+void trim(char *input)
+{
+  char *new_input = input;
+  size_t input_length = strlen(new_input);
+
+  while(isspace(new_input[input_length - 1]))
+    new_input[--input_length] = 0;
+
+  while(*new_input && isspace(*new_input))
+  {
+    ++new_input;
+    --input_length;
+  }
+
+  memmove(input, new_input, input_length + 1);
+
+  return;
+}
+
 /* Automatically expands to accommodate user input. Caller must free() returned pointer. */
 char *get_input()
 {
@@ -120,7 +140,10 @@ char *get_input()
     strcpy(new_input + full_length, input);
     full_length += input_length;
     if(feof(stdin) || input[input_length-1] == '\n')
+    {
+      trim(new_input);
       return new_input;
+    }
   }
   free(new_input);
   return "";
@@ -205,6 +228,7 @@ void menu(lib_funcs *lf, void **lib_handle, const char *lib_name)
     printf("4. Manually test %s functions\n", lib_name);
     puts("5. Quit\n");
     printf("> ");
+
     input = get_input();
     if(!validate_input(input))
     {
@@ -212,6 +236,7 @@ void menu(lib_funcs *lf, void **lib_handle, const char *lib_name)
       free(input);
       continue;
     }
+
     switch(atoi(input))
     {
       case 1:
@@ -253,9 +278,7 @@ int main()
   lib_funcs *lfp = &lf;
 
   load_lib(lfp, lib_handle, lib_name);
-  //test_lib(lfp);
   menu(lfp, lib_handle, lib_name);
-  //dlclose(&lib_handle);
 
   return 0;
 }
