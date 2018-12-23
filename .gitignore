@@ -16,4 +16,5 @@
 !*.rb
 !*.sh
 !LICENSE
+!Makefile
 !README.md
