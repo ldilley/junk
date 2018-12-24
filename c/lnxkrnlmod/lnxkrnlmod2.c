@@ -1,5 +1,9 @@
 /* lnxkrnlmod2.c */
 
+/*
+ * An example Linux kernel module to demonstrate module dependency
+ */
+
 #include <linux/init.h>
 #include <linux/kernel.h>
 #include <linux/module.h>

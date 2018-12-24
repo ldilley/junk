@@ -1,5 +1,9 @@
 /* lnxkrnlmod.c */
 
+/*
+ * An example Linux kernel module
+ */
+
 #include <linux/init.h>
 #include <linux/kernel.h>
 #include <linux/module.h>
