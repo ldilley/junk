@@ -1,7 +1,12 @@
-*
-#*.o
-#*.so
-#*.core
+*.a
+*.o
+*.la
+*.so
+*.com
+*.exe
+*.ldd
+*.core
+*.class
 !.gitignore
 !*.asm
 !*.bat
