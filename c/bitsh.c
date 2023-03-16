@@ -1,7 +1,7 @@
 /*
  * bitsh.c - "bitch" pseudo shell
  * Last update: 09/21/2006
- * Author: Lloyd Dilley <lloyd@dilley.me>
+ * Author: Lloyd Dilley
  * Description: This small program emulates a user's login shell, but with a twist.
  *              Replace the user's shell in /etc/passwd or add the program to the
  *              target user's shell initialization file. Next time the user logs
@@ -17,15 +17,15 @@
  *          him a beer if you ever meet up.
  */
 
-#include <signal.h>              /* needed to handle SIGINT -- we don't want users breaking out with ctrl+c. :P */
-#include <stdio.h>               /* printf(), scanf() and system() */
+#include <signal.h>              /* needed to handle SIGINT -- we don't want users breaking out with ctrl+c :P */
+#include <stdio.h>               /* fprintf(), printf(), scanf(), system(), and stderr */
 #include <stdlib.h>              /* NULL and rand() */
 #include <string.h>              /* strlen() and strncpy() */
 #include <unistd.h>              /* gethostname() */
 
 #define MAX_CHANCE 100           /* the maximum percent chance that PERCENT_CHANCE is calculated out of */
 #define PERCENT_CHANCE 40        /* the percent chance that any given command will fail with a fake error */
-#define ERROR_COUNT 9            /* the amount of error strings in the error_string array */
+#define ERROR_COUNT 10           /* the amount of error strings in the error_string array */
 #define ERROR_LENGTH 64          /* maximum length of error strings in the error_string array */
 #define COMMAND_LENGTH 128       /* maximum length of strings accepted in our pseudo shell as commands */
 #define HOSTNAME_LENGTH 255      /* maximum length of system hostname */
@@ -37,30 +37,31 @@ int main(void)
 {
   /* You can put your own custom error messages into the array below (don't forget to update ERROR_COUNT!) */
   char error_string[ERROR_COUNT][ERROR_LENGTH] = {
-  "I/O error.",
-  "Invalid command.",
-  "No such process.",
-  "Permission denied.",
-  "Interrupted system call.",
-  "Operation not permitted.",
-  "Kernel module not loaded.",
-  "No such file or directory.",
-  "Stack overflow (core dumped)" };
+  "I/O error",
+  "Invalid command",
+  "No such process",
+  "Permission denied",
+  "Interrupted system call",
+  "Operation not permitted",
+  "Kernel module not loaded",
+  "No such file or directory",
+  "Stack overflow (core dumped)",
+  "Resource temporarily unavailable" };
 
-  int i, x;                                /* holds rand() integers */  
-  char command[COMMAND_LENGTH];            /* holds the command typed in the pseudo shell */
-  char hostname[HOSTNAME_LENGTH];          /* holds the system hostname used to populate the shell prompt */
-  char *username = NULL;                   /* holds the username of the user to populate the shell prompt */
+  int i, x;                       /* holds rand() integers */
+  char command[COMMAND_LENGTH];   /* holds the command typed in the pseudo shell */
+  char hostname[HOSTNAME_LENGTH]; /* holds the system hostname used to populate the shell prompt */
+  char *username = NULL;          /* holds the username of the user to populate the shell prompt */
 
-  /* Set the system hostname or set a bogus one if not able. */
+  /* Set the system hostname or set a bogus one if not able */
   if(gethostname(hostname, sizeof(hostname)) != 0)
-    strncpy(hostname, BOGUS_HOSTNAME, BOGUS_HOSTNAME_LENGTH + 1); /* Add 1 to append the null terminator. */
+    strncpy(hostname, BOGUS_HOSTNAME, BOGUS_HOSTNAME_LENGTH + 1); /* add 1 to append the null terminator */
   hostname[sizeof(hostname) - 1] = '\0';
 
-  /* Set the user's username if able. */
+  /* Set the user's username if able */
   username = getenv("LOGNAME");
 
-  /* If the username was not able to be set above, use a bogus one. */
+  /* If the username was not able to be set above, use a bogus one */
   if(username == NULL || strlen(username) == 0)
     username = BOGUS_USERNAME;
 
@@ -78,8 +79,8 @@ int main(void)
     }
     else
     {
-      x = rand() % ERROR_COUNT;            /* pick a random error message from the error_string array */
-      printf("%s\n", error_string[x]);     /* display the random error string */
+      x = rand() % ERROR_COUNT;                 /* pick a random error message from the error_string array */
+      fprintf(stderr, "%s\n", error_string[x]); /* display the random error string */
     }
   }
   return 0;

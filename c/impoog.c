@@ -1,7 +1,7 @@
 /*
  * impoog.c - improved "oog"
  * Last update: 03/04/2007
- * Authors: Nathan Mitchell <natem@tir.com> and Lloyd Dilley <lloyd@dilley.me>
+ * Authors: Nathan Mitchell <natem@tir.com> and Lloyd Dilley
  * Description: This small program attempts to fill up the operating system process
  *              table and exhaust physical memory which will make a Linux/Unix system
  *              very slow or even crash. This program should not be used on production
